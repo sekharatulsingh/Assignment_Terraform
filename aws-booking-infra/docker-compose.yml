@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: booking-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: bookings
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d/01-migrations:ro
+      - ./db/seed:/docker-entrypoint-initdb.d/02-seed:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booking -d bookings"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
